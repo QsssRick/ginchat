@@ -34,12 +34,20 @@ func SearchFriend(userId uint) []UserBasic {
 	return users
 }
 
-func AddFriend(userId, targetId uint) int {
+func AddFriend(userId, targetId uint) (int, string) {
 	user := UserBasic{}
 	if targetId != 0 {
 		user = FindByid(targetId)
 		// fmt.Println("user     ", user)
 		if user.PassWord != "" {
+			if targetId == userId {
+				return -1, "不能添加自己为好友"
+			}
+			contact0 := Contact{}
+			utils.DB.Where("owner_id = ? and target_id = ? and type = 1", userId, targetId).First(&contact0)
+			if contact0.ID != 0 {
+				return -1, "已经是好友"
+			}
 			tx := utils.DB.Begin() //开启事务,如果有错误就回滚
 			//事务一旦开始，不论任何异常都回滚
 			defer func() {
@@ -54,7 +62,7 @@ func AddFriend(userId, targetId uint) int {
 			contact.Type = 1
 			if err := utils.DB.Create(&contact).Error; err != nil {
 				tx.Rollback()
-				return -1
+				return -1, "添加好友失败"
 			}
 			contact1 := Contact{}
 			contact1.OwnerId = targetId
@@ -62,12 +70,12 @@ func AddFriend(userId, targetId uint) int {
 			contact1.Type = 1
 			if err := utils.DB.Create(&contact1).Error; err != nil {
 				tx.Rollback()
-				return -1
+				return -1, "添加好友失败"
 			}
 			tx.Commit()
-			return 0
+			return 0, "添加好友成功"
 		}
-		return -1
+		return -1, "该用户不存在"
 	}
-	return -1
+	return -1, "用户id不能为空"
 }
