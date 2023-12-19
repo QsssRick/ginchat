@@ -107,7 +107,7 @@ func revcProc(node *Node) {
 			return
 		}
 		broadMsg(data) // 广播
-		fmt.Println("[ws]revcProc <<<< ", string(data))
+		// fmt.Println("[ws]revcProc <<<< ", string(data))
 	}
 }
 

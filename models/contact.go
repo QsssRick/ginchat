@@ -33,3 +33,21 @@ func SearchFriend(userId uint) []UserBasic {
 	utils.DB.Where("id in ?", objIds).Find(&users)
 	return users
 }
+
+func AddFriend(userId, targetId uint) int {
+	user := UserBasic{}
+	if targetId != 0 {
+		user = FindByid(targetId)
+		// fmt.Println("user     ", user)
+		if user.PassWord != "" {
+			contact := Contact{}
+			contact.OwnerId = userId
+			contact.TargetId = targetId
+			contact.Type = 1
+			utils.DB.Create(&contact)
+			return 0
+		}
+		return -1
+	}
+	return -1
+}
