@@ -40,11 +40,31 @@ func AddFriend(userId, targetId uint) int {
 		user = FindByid(targetId)
 		// fmt.Println("user     ", user)
 		if user.PassWord != "" {
+			tx := utils.DB.Begin() //开启事务,如果有错误就回滚
+			//事务一旦开始，不论任何异常都回滚
+			defer func() {
+				if r := recover(); r != nil {
+					tx.Rollback()
+				}
+			}()
+			// fmt.Println("user     ", user)
 			contact := Contact{}
 			contact.OwnerId = userId
 			contact.TargetId = targetId
 			contact.Type = 1
-			utils.DB.Create(&contact)
+			if err := utils.DB.Create(&contact).Error; err != nil {
+				tx.Rollback()
+				return -1
+			}
+			contact1 := Contact{}
+			contact1.OwnerId = targetId
+			contact1.TargetId = userId
+			contact1.Type = 1
+			if err := utils.DB.Create(&contact1).Error; err != nil {
+				tx.Rollback()
+				return -1
+			}
+			tx.Commit()
 			return 0
 		}
 		return -1
