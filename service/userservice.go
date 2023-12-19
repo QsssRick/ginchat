@@ -251,3 +251,20 @@ func AddFriend(c *gin.Context) {
 		utils.RespFail(c.Writer, msg)
 	}
 }
+
+func CreateCommunity(c *gin.Context) {
+	ownerId, _ := strconv.Atoi(c.Request.FormValue("ownerId"))
+	Name := c.Request.FormValue("Name")
+	community := models.Community{OwnerId: uint(ownerId), Name: Name}
+	code, msg := models.CreateCommunity(community)
+	// c.JSON(200, gin.H{
+	// 	"code":    0, //0表示成功,-1表示失败
+	// 	"message": "搜索好友成功",
+	// 	"data":    user,
+	// })
+	if code == 0 {
+		utils.RespOK(c.Writer, code, msg)
+	} else {
+		utils.RespFail(c.Writer, msg)
+	}
+}
