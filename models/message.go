@@ -31,7 +31,7 @@ func (table *Message) TableName() string {
 	return "message"
 }
 
-type Node struct {
+type Node struct { // 节点
 	Conn       *websocket.Conn
 	DataQueueu chan []byte
 	GroupSets  set.Interface
